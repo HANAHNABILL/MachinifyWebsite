@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us — Manufaktur Solutions</title>
+
+  <!-- Fonts matching index -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Three.js for 3D model -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* ─── TOKENS ─────────────────────────────── */
+    :root {
+      --ink: #15141C;
+      --orange: #FF7618;
+      --orange2: #FF8D3A;
+      --grey: #C1C1C1;
+      --grey-dim: #4A475A;
+      --white: #FFFFFF;
+      --off: #F5F4F0;
+      --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+      --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+    }
+
+    /* ─── RESET ──────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--ink);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ─── CURSOR ─────────────────────────────── */
+    .cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .cursor-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--orange);
+      position: absolute;
+      transform: translate(-50%, -50%);
+      transition: transform .1s;
+    }
+
+    .cursor-ring {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 118, 24, .5);
+      position: absolute;
+      transform: translate(-50%, -50%);
+      transition: transform .25s var(--ease-out), width .3s, height .3s, border-color .3s;
+    }
+
+    body:hover .cursor-ring {}
+
+    .cursor-expanded .cursor-ring {
+      width: 60px;
+      height: 60px;
+      border-color: var(--orange);
+    }
+
+    /* ─── NAV STRIP ──────────────────────────── */
+    .about-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+      transition: background .4s, padding .4s;
+    }
+
+    .about-nav.scrolled {
+      background: rgba(21, 20, 28, .92);
+      backdrop-filter: blur(12px);
+      padding: 16px 48px;
+    }
+
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+
+    .nav-logo span {
+      color: var(--orange);
+    }
+
+    .nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--grey);
+      transition: color .25s;
+    }
+
+    .nav-back svg {
+      transition: transform .3s var(--ease-out);
+    }
+
+    .nav-back:hover {
+      color: var(--white);
+    }
+
+    .nav-back:hover svg {
+      transform: translateX(-4px);
+    }
+
+    /* ─── HERO ───────────────────────────────── */
+    .hero {
+      min-height: 110vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    /* Animated grid background */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(255, 118, 24, .04) 1px, transparent 1.5px),
+        linear-gradient(90deg, rgba(255, 118, 24, .04) 1.5px, transparent 1px);
+      background-size: 80px 80px;
+      animation: gridDrift 20s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 80px 80px;
+      }
+    }
+
+    /* Glowing orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 118, 24, .18) 0%, transparent 70%);
+      top: -200px;
+      right: -100px;
+      animation: orb1Float 8s ease-in-out infinite alternate;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 118, 24, .10) 0%, transparent 70%);
+      bottom: 100px;
+      left: -150px;
+      animation: orb2Float 11s ease-in-out infinite alternate;
+    }
+
+    @keyframes orb1Float {
+      from {
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        transform: translateY(40px) scale(1.08);
+      }
+    }
+
+    @keyframes orb2Float {
+      from {
+        transform: translateY(0) translateX(0);
+      }
+
+      to {
+        transform: translateY(-30px) translateX(20px);
+      }
+    }
+
+    /* Floating particles */
+    .particles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--orange);
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: particleRise var(--d, 6s) var(--delay, 0s) ease-in infinite;
+    }
+
+    @keyframes particleRise {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(1);
+      }
+
+      10% {
+        opacity: .7;
+      }
+
+      90% {
+        opacity: .2;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-80vh) scale(0.3);
+      }
+    }
+
+    /* Hero content */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 48px 80px;
+      max-width: 750px;
+    }
+
+    /* 3D canvas wrapper — positioned absolute in hero */
+    .hero-canvas-wrapper {
+      width: 650px;
+      height: 600px;
+      position: absolute;
+      top: 30%;
+      right: 80px;
+      transform: translateY(-60%);
+      opacity: 0;
+      animation: fadeUp 1.2s .6s var(--ease-out) forwards;
+      cursor: grab;
+      z-index: 5;
+    }
+
+    .hero-canvas-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Lato', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp .8s .3s var(--ease-out) forwards;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--orange);
+    }
+
+    .hero-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(60px, 9vw, 130px);
+      font-weight: 700;
+      line-height: .93;
+      letter-spacing: -4px;
+      text-transform: uppercase;
+      color: var(--white);
+      opacity: 0;
+      transform: translateY(40px);
+      animation: fadeUp 1s .5s var(--ease-out) forwards;
+    }
+
+    .hero-headline em {
+      font-style: normal;
+      -webkit-text-stroke: 1.5px var(--orange);
+      color: transparent;
+    }
+
+    .hero-sub {
+      margin-top: 40px;
+      max-width: 520px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--grey);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp .8s .8s var(--ease-out) forwards;
+    }
+
+    .hero-cta {
+      margin-top: 48px;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, .2);
+      padding: 18px 32px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp .8s 1s var(--ease-out) forwards;
+      transition: border-color .3s, color .3s;
+    }
+
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .35s var(--ease-out);
+    }
+
+    .hero-cta:hover::before {
+      transform: scaleX(1);
+    }
+
+    .hero-cta:hover {
+      border-color: var(--orange);
+    }
+
+    .hero-cta span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-cta svg {
+      position: relative;
+      z-index: 1;
+      transition: transform .3s var(--ease-out);
+    }
+
+    .hero-cta:hover svg {
+      transform: translateX(6px);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 36px;
+      right: 48px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp .6s 1.4s var(--ease-out) forwards;
+    }
+
+    .scroll-indicator span {
+      writing-mode: vertical-rl;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--grey-dim);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--orange), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+
+      0%,
+      100% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scaleY(.5);
+        opacity: .4;
+      }
+    }
+
+    /* ─── SECTION UTILITIES ───────────────────── */
+    .section {
+      padding: 120px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 32px;
+      height: 1px;
+      background: var(--orange);
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity .9s var(--ease-out), transform .9s var(--ease-out);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: .1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: .2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: .3s;
+    }
+
+    .reveal-delay-4 {
+      transition-delay: .4s;
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity .9s var(--ease-out), transform .9s var(--ease-out);
+    }
+
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity .9s var(--ease-out), transform .9s var(--ease-out);
+    }
+
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ─── MISSION SPLIT ──────────────────────── */
+    .mission-section {
+      background: var(--ink);
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .mission-left {}
+
+    .mission-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 4.5vw, 64px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+    }
+
+    .mission-headline span {
+      color: var(--orange);
+    }
+
+    .mission-body {
+      margin-top: 28px;
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--grey);
+    }
+
+    .mission-right {}
+
+    .mission-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .mission-stat {
+      padding: 36px 32px;
+      border: 1px solid rgba(255, 255, 255, .06);
+      position: relative;
+      overflow: hidden;
+      transition: background .3s;
+    }
+
+    .mission-stat::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(255, 118, 24, .08), transparent 60%);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .mission-stat:hover {
+      background: rgba(255, 118, 24, .04);
+    }
+
+    .mission-stat:hover::after {
+      opacity: 1;
+    }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--white);
+    }
+
+    .stat-unit {
+      color: var(--orange);
+    }
+
+    .stat-label {
+      margin-top: 8px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--grey-dim);
+    }
+
+    /* ─── TECHNOLOGY MARQUEE ─────────────────── */
+    .marquee-section {
+      padding: 0;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      overflow: hidden;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      animation: marqueeScroll 18s linear infinite;
+      width: max-content;
+    }
+
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes marqueeScroll {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 26px 48px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--grey-dim);
+      white-space: nowrap;
+      border-right: 1px solid rgba(255, 255, 255, .06);
+      transition: color .3s;
+    }
+
+    .marquee-item:hover {
+      color: var(--orange);
+    }
+
+    .marquee-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+
+    /* ─── PILLARS ────────────────────────────── */
+    .pillars-section {
+      background: #0E0D14;
+    }
+
+    .pillars-header {
+      max-width: 600px;
+      margin-bottom: 80px;
+    }
+
+    .pillars-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .pillar-card {
+      background: #0E0D14;
+      padding: 52px 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background .3s;
+      cursor: default;
+    }
+
+    .pillar-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .4s var(--ease-out);
+    }
+
+    .pillar-card:hover {
+      background: #13121C;
+    }
+
+    .pillar-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .pillar-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: rgba(255, 118, 24, .4);
+      margin-bottom: 32px;
+    }
+
+    .pillar-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 28px;
+      color: var(--orange);
+    }
+
+    .pillar-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+    }
+
+    .pillar-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--grey);
+    }
+
+    /* ─── STORY TIMELINE ─────────────────────── */
+    .story-section {
+      background: var(--ink);
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: start;
+    }
+
+    .story-sticky {
+      position: sticky;
+      top: 120px;
+    }
+
+    .story-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+    }
+
+    .story-body {
+      margin-top: 24px;
+      margin-bottom: 40px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--grey);
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 24px;
+      padding: 36px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      position: relative;
+    }
+
+    .timeline-item:first-child {
+      padding-top: 0;
+    }
+
+    .timeline-year {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--orange);
+      padding-top: 4px;
+    }
+
+    .timeline-content h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .timeline-content p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--grey);
+    }
+
+    /* ─── SENSOR MOSAIC ──────────────────────── */
+    .sensors-section {
+      background: #0E0D14;
+    }
+
+    .sensors-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      margin-bottom: 60px;
+    }
+
+    .mosaic {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto;
+      gap: 1px;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .mosaic-cell {
+      background: #0E0D14;
+      padding: 44px 36px;
+      position: relative;
+      overflow: hidden;
+      transition: background .25s;
+    }
+
+    .mosaic-cell:hover {
+      background: #16151F;
+    }
+
+    .mosaic-cell--wide {
+      grid-column: span 2;
+    }
+
+    .mosaic-cell--tall {
+      grid-row: span 2;
+    }
+
+    .mosaic-cell-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 12px;
+    }
+
+    .mosaic-cell-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(28px, 3vw, 44px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .mosaic-cell-sub {
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--grey);
+    }
+
+    /* Animated bar */
+    .sensor-bar-wrap {
+      margin-top: 20px;
+      height: 3px;
+      background: rgba(255, 255, 255, .08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .sensor-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--orange2));
+      border-radius: 2px;
+      width: 0;
+      transition: width 1.2s var(--ease-out);
+    }
+
+    .mosaic-cell.visible .sensor-bar {
+      width: var(--pct, 80%);
+    }
+
+    /* Live pulse dot */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-top: 16px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22C55E;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, .4);
+      animation: livePulse 2s ease-out infinite;
+    }
+
+    @keyframes livePulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, .4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+
+    /* ─── TEAM / ROLES ──────────────────────── */
+    .team-section {
+      background: var(--ink);
+    }
+
+    .team-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .team-sub {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--grey);
+      max-width: 480px;
+      margin-bottom: 64px;
+    }
+
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .role-card {
+      background: var(--ink);
+      padding: 40px 28px;
+      transition: background .3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .4s var(--ease-out);
+    }
+
+    .role-card:hover {
+      background: #1A1925;
+    }
+
+    .role-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .role-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 118, 24, .3), rgba(255, 118, 24, .05));
+      border: 1px solid rgba(255, 118, 24, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--orange);
+    }
+
+    .role-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .role-title {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 16px;
+    }
+
+    .role-bio {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--grey);
+    }
+
+    /* ─── CTA FOOTER BAND ────────────────────── */
+    .cta-section {
+      background: var(--orange);
+      padding: 100px 48px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: 'MAINTEN';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(100px, 16vw, 220px);
+      font-weight: 700;
+      letter-spacing: -8px;
+      color: rgba(0, 0, 0, .07);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .cta-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .cta-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 4vw, 60px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .cta-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--ink);
+      color: var(--white);
+      padding: 20px 40px;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      transition: color .3s;
+    }
+
+    .cta-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--white);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform .35s var(--ease-out);
+    }
+
+    .cta-btn:hover::before {
+      transform: scaleX(1);
+    }
+
+    .cta-btn:hover {
+      color: var(--ink);
+    }
+
+    .cta-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-btn svg {
+      position: relative;
+      z-index: 1;
+      transition: transform .3s;
+    }
+
+    .cta-btn:hover svg {
+      transform: translateX(4px);
+    }
+
+    /* ─── FADE ANIMATION ─────────────────────── */
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 1024px) {
+      .section {
+        padding: 80px 28px;
+      }
+
+      .hero-content {
+        padding: 0 28px 60px;
+      }
+
+      .hero-canvas-wrapper {
+        display: none;
+      }
+
+      .about-nav {
+        padding: 20px 28px;
+      }
+
+      .about-nav.scrolled {
+        padding: 14px 28px;
+      }
+
+      .mission-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .pillars-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .story-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .story-sticky {
+        position: static;
+      }
+
+      .mosaic {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .mosaic-cell--wide {
+        grid-column: span 1;
+      }
+
+      .mosaic-cell--tall {
+        grid-row: span 1;
+      }
+
+      .roles-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .cta-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .scroll-indicator {
+        display: none;
+      }
+
+      .cursor {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-headline {
+        letter-spacing: -2px;
+      }
+
+      .pillars-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mosaic {
+        grid-template-columns: 1fr;
+      }
+
+      .roles-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mission-stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor">
+    <div class="cursor-ring"></div>
+    <div class="cursor-dot"></div>
+  </div>
+
+  <!-- ─── NAV ────────────────────────────────── -->
+  <nav class="about-nav" id="mainNav">
+    <div class="nav-logo">MANUFAKTUR<span>.</span></div>
+    <a href="index.html" class="nav-back">
+      <svg width="17" height="13" viewBox="0 0 17.65 13.1" fill="currentColor">
+        <path
+          d="m5.9 0 1.275 1.275L3.55 4.9l-.85.575.1.3 1.025-.125H17.65v1.825H3.825L2.8 7.325l-.1.3.85.575 3.625 3.625L5.9 13.1 0 7.2V5.9Z" />
+      </svg>
+      Back to Home
+    </a>
+  </nav>
+
+  <!-- ─── HERO ──────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- 3D canvas wrapper -->
+    <div class="hero-canvas-wrapper" id="canvas3dWrapper"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">Who We Are</p>
+      <h1 class="hero-headline">
+        We Prevent<br />
+        <em>Machine</em><br />
+        Failure.
+      </h1>
+      <p class="hero-sub">
+        Manufaktur Solutions builds predictive intelligence for industrial machines — combining IoT sensors, real-time
+        analytics and AI to eliminate unplanned downtime before it happens.
+      </p>
+      <a href="#mission" class="hero-cta">
+        <span>Explore Our Mission</span>
+        <svg width="18" height="13" viewBox="0 0 17.65 13.1" fill="currentColor">
+          <path
+            d="m11.75 13.1-1.275-1.275L14.1 8.2l.85-.575-.1-.3-1.025.125H0V5.625h13.825l1.025.15.1-.3-.85-.575-3.625-3.625L11.75 0l5.9 5.9v1.3Z" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ─── MARQUEE ───────────────────────────── -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <!-- duplicated for seamless loop -->
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>Predictive Maintenance
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>IoT Sensors
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>Real-Time Monitoring
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>AI Fault Detection
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>ESP32 / Arduino
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>TensorFlow
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>MQTT Protocol
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>REST API
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>Predictive Maintenance
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>IoT Sensors
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>Real-Time Monitoring
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>AI Fault Detection
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>ESP32 / Arduino
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>TensorFlow
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>MQTT Protocol
+      </div>
+      <div class="marquee-item">
+        <div class="marquee-dot"></div>REST API
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MISSION ───────────────────────────── -->
+  <section class="section mission-section" id="mission">
+    <div class="section-inner">
+      <div class="mission-grid">
+        <div class="mission-left">
+          <p class="section-label reveal">Our Mission</p>
+          <h2 class="mission-headline reveal reveal-delay-1">
+            Machines should<br />never surprise<br />
+            <span>their operators.</span>
+          </h2>
+          <p class="mission-body reveal reveal-delay-2">
+            We were founded on a single conviction: most industrial failures are predictable.
+            By fusing edge-computing hardware with machine-learning models trained on real fault data,
+            we give maintenance teams the foresight to act — hours or days before a breakdown occurs.
+          </p>
+          <p class="mission-body reveal reveal-delay-3" style="margin-top:16px;">
+            Our platform ingests temperature, vibration, sound, pressure and runtime signals from the
+            machines that matter most to you, then converts raw data into actionable alerts — with
+            context, not just numbers.
+          </p>
+        </div>
+        <div class="mission-right reveal-right">
+          <div class="mission-stat-grid">
+            <div class="mission-stat">
+              <div class="stat-number">87<span class="stat-unit">%</span></div>
+              <div class="stat-label">Model Accuracy</div>
+            </div>
+            <div class="mission-stat">
+              <div class="stat-number">3M<span class="stat-unit">+</span></div>
+              <div class="stat-label">Faults Prevented / yr</div>
+            </div>
+            <div class="mission-stat">
+              <div class="stat-number">269<span class="stat-unit">%</span></div>
+              <div class="stat-label">Capacity Increase</div>
+            </div>
+            <div class="mission-stat">
+              <div class="stat-number">727<span class="stat-unit">h</span></div>
+              <div class="stat-label">Downtime Eliminated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PILLARS ───────────────────────────── -->
+  <section class="section pillars-section">
+    <div class="section-inner">
+      <div class="pillars-header">
+        <p class="section-label reveal">What We Do</p>
+        <h2 class="pillars-headline reveal reveal-delay-1">
+          Three pillars.<br />One mission.
+        </h2>
+      </div>
+      <div class="pillars-grid">
+        <div class="pillar-card reveal reveal-delay-1">
+          <div class="pillar-num">01</div>
+          <svg class="pillar-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="24" cy="24" r="10" />
+            <path
+              d="M24 4v4M24 40v4M4 24h4M40 24h4M8.34 8.34l2.83 2.83M36.83 36.83l2.83 2.83M8.34 39.66l2.83-2.83M36.83 11.17l2.83-2.83" />
+          </svg>
+          <h3 class="pillar-title">Sense</h3>
+          <p class="pillar-body">Deploy our compact IoT modules fitted with temperature, vibration, sound and pressure
+            sensors directly onto critical machine components — zero downtime installation.</p>
+        </div>
+        <div class="pillar-card reveal reveal-delay-2">
+          <div class="pillar-num">02</div>
+          <svg class="pillar-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="6,32 14,20 22,26 32,12 42,20" />
+            <line x1="6" y1="38" x2="42" y2="38" />
+          </svg>
+          <h3 class="pillar-title">Predict</h3>
+          <p class="pillar-body">Our AI models — trained on thousands of real-world fault events — classify anomalies,
+            estimate remaining useful life and flag deterioration patterns before failure.</p>
+        </div>
+        <div class="pillar-card reveal reveal-delay-3">
+          <div class="pillar-num">03</div>
+          <svg class="pillar-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="8" y="12" width="32" height="24" rx="2" />
+            <line x1="16" y1="20" x2="32" y2="20" />
+            <line x1="16" y1="28" x2="24" y2="28" />
+            <circle cx="38" cy="10" r="5" fill="currentColor" stroke="none" class="pulse-dot" />
+          </svg>
+          <h3 class="pillar-title">Alert</h3>
+          <p class="pillar-body">Push targeted, context-rich alerts to maintenance teams — identifying the probable
+            cause and suggested action, not just a warning light — via our dashboard and API.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STORY ─────────────────────────────── -->
+  <section class="section story-section">
+    <div class="section-inner">
+      <div class="story-grid">
+        <div class="story-sticky">
+          <p class="section-label reveal">Our Story</p>
+          <h2 class="story-headline reveal reveal-delay-1">
+            Built from the<br />factory floor up.
+          </h2>
+          <p class="story-body reveal reveal-delay-2">
+            Manufaktur Solutions didn't start in a lab. It started with a broken conveyor
+            belt, a three-day production halt, and the question: why didn't we see that coming?
+          </p>
+          <a href="index.html" class="hero-cta reveal reveal-delay-3" style="margin-top:0; display:inline-flex;">
+            <span>See Our Work</span>
+            <svg width="18" height="13" viewBox="0 0 17.65 13.1" fill="currentColor">
+              <path
+                d="m11.75 13.1-1.275-1.275L14.1 8.2l.85-.575-.1-.3-1.025.125H0V5.625h13.825l1.025.15.1-.3-.85-.575-3.625-3.625L11.75 0l5.9 5.9v1.3Z" />
+            </svg>
+          </a>
+        </div>
+        <div class="timeline">
+          <div class="timeline-item reveal">
+            <div class="timeline-year">2019</div>
+            <div class="timeline-content">
+              <h4>The Incident</h4>
+              <p>A manufacturing partner loses three days of production to an unexpected bearing failure. The founding
+                team decides the problem is solvable — and starts building.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-1">
+            <div class="timeline-year">2020</div>
+            <div class="timeline-content">
+              <h4>First Sensor Prototype</h4>
+              <p>Working with ESP32 microcontrollers and custom PCBs, the team deploys the first vibration-temperature
+                monitoring node on a CNC machine. First live fault detected within a week.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-2">
+            <div class="timeline-year">2021</div>
+            <div class="timeline-content">
+              <h4>AI Model Goes Live</h4>
+              <p>A scikit-learn–based classification model achieves 83% accuracy on real fault events. Dashboard v1
+                launches with live sensor streams and alert routing via MQTT.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-3">
+            <div class="timeline-year">2022</div>
+            <div class="timeline-content">
+              <h4>Global Expansion</h4>
+              <p>Offices open in Moscow, Chennai, Nouakchott, Oslo and Nice. Over 200 machines monitored across five
+                industries. Model accuracy reaches 87% after continuous feedback training.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-4">
+            <div class="timeline-year">2025</div>
+            <div class="timeline-content">
+              <h4>3 Million Faults Prevented</h4>
+              <p>Our cumulative fault-prevention count crosses 3,000,000 confirmed events. The platform now integrates
+                with major ERP and SCADA systems via REST API and OPC-UA.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SENSOR MOSAIC ─────────────────────── -->
+  <section class="section sensors-section">
+    <div class="section-inner">
+      <p class="section-label reveal">Live Intelligence</p>
+      <h2 class="sensors-headline reveal reveal-delay-1">
+        What we measure<br />makes the difference.
+      </h2>
+      <div class="mosaic">
+        <div class="mosaic-cell mosaic-cell--wide reveal">
+          <div class="mosaic-cell-label">System Status</div>
+          <div class="mosaic-cell-value">Online</div>
+          <div class="live-badge">
+            <div class="live-dot"></div> All sensors reporting
+          </div>
+        </div>
+        <div class="mosaic-cell reveal reveal-delay-1">
+          <div class="mosaic-cell-label">Temperature</div>
+          <div class="mosaic-cell-value">72°C</div>
+          <div class="mosaic-cell-sub">Within safe operating range</div>
+          <div class="sensor-bar-wrap">
+            <div class="sensor-bar" style="--pct:72%"></div>
+          </div>
+        </div>
+        <div class="mosaic-cell mosaic-cell--tall reveal reveal-delay-2">
+          <div class="mosaic-cell-label">Vibration</div>
+          <div class="mosaic-cell-value">0.4G</div>
+          <div class="mosaic-cell-sub">Accelerometer reading.<br />Baseline: 0.2G</div>
+          <div class="sensor-bar-wrap" style="margin-top:24px">
+            <div class="sensor-bar" style="--pct:40%"></div>
+          </div>
+        </div>
+        <div class="mosaic-cell reveal reveal-delay-3">
+          <div class="mosaic-cell-label">Pressure</div>
+          <div class="mosaic-cell-value">6.2 bar</div>
+          <div class="mosaic-cell-sub">Hydraulic line</div>
+          <div class="sensor-bar-wrap">
+            <div class="sensor-bar" style="--pct:62%"></div>
+          </div>
+        </div>
+        <div class="mosaic-cell reveal">
+          <div class="mosaic-cell-label">Sound dB</div>
+          <div class="mosaic-cell-value">74 dB</div>
+          <div class="mosaic-cell-sub">Normal — no harmonic anomaly</div>
+          <div class="sensor-bar-wrap">
+            <div class="sensor-bar" style="--pct:55%"></div>
+          </div>
+        </div>
+        <div class="mosaic-cell mosaic-cell--wide reveal reveal-delay-1">
+          <div class="mosaic-cell-label">Model Confidence</div>
+          <div class="mosaic-cell-value">94<span style="font-size:.5em;color:var(--grey)">%</span></div>
+          <div class="mosaic-cell-sub">No fault predicted within 72-hour horizon</div>
+          <div class="sensor-bar-wrap">
+            <div class="sensor-bar" style="--pct:94%"></div>
+          </div>
+        </div>
+        <div class="mosaic-cell reveal reveal-delay-2">
+          <div class="mosaic-cell-label">Runtime</div>
+          <div class="mosaic-cell-value">2,418 h</div>
+          <div class="mosaic-cell-sub">Since last maintenance</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TEAM ──────────────────────────────── -->
+  <section class="section team-section">
+    <div class="section-inner">
+      <p class="section-label reveal">The Team</p>
+      <h2 class="team-headline reveal reveal-delay-1">People who<br />built this.</h2>
+      <p class="team-sub reveal reveal-delay-2">Engineers, data scientists and industrial automation specialists —
+        united by a deep dislike of preventable breakdowns.</p>
+      <div class="roles-grid">
+        <div class="role-card reveal">
+          <div class="role-avatar">H</div>
+          <div class="role-name">Hana Nabil</div>
+          <div class="role-title">Founder & Lead Engineer</div>
+          <p class="role-bio">Designed the first sensor node and trained the baseline AI model. Believes every machine
+            deserves a nervous system.</p>
+        </div>
+        <div class="role-card reveal reveal-delay-1">
+          <div class="role-avatar">M</div>
+          <div class="role-name">Mohamed Shalaby</div>
+          <div class="role-title">IoT Hardware Lead</div>
+          <p class="role-bio">Responsible for the ESP32 and Arduino integration stack that keeps thousands of sensors
+            alive 24/7.</p>
+        </div>
+        <div class="role-card reveal reveal-delay-2">
+          <div class="role-avatar">S</div>
+          <div class="role-name">Sensor Research</div>
+          <div class="role-title">Signal Processing</div>
+          <p class="role-bio">Specialises in FFT and anomaly detection on vibration and acoustic signals from rotating
+            machinery.</p>
+        </div>
+        <div class="role-card reveal reveal-delay-3">
+          <div class="role-avatar">AI</div>
+          <div class="role-name">ML Platform</div>
+          <div class="role-title">TensorFlow / PyTorch</div>
+          <p class="role-bio">Maintains the continuous training pipeline that improves model accuracy with every fault
+            event recorded across the fleet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA ───────────────────────────────── -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2 class="cta-headline reveal">
+        Ready to protect<br />your machines?
+      </h2>
+      <a href="Dashboard.html" class="cta-btn reveal reveal-delay-2">
+        <span>View the Dashboard</span>
+        <svg width="18" height="13" viewBox="0 0 17.65 13.1" fill="currentColor">
+          <path
+            d="m11.75 13.1-1.275-1.275L14.1 8.2l.85-.575-.1-.3-1.025.125H0V5.625h13.825l1.025.15.1-.3-.85-.575-3.625-3.625L11.75 0l5.9 5.9v1.3Z" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ─── SCRIPTS ──────────────────────────── -->
+  <script>
+    /* --- Custom cursor --- */
+    const cursor = document.getElementById('cursor');
+    const ring = cursor.querySelector('.cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function animCursor() {
+      rx += (mx - rx) * .12;
+      ry += (my - ry) * .12;
+      cursor.style.transform = `translate(${mx}px,${my}px)`;
+      ring.style.transform = `translate(${rx - mx}px,${ry - my}px) translate(-50%,-50%)`;
+      requestAnimationFrame(animCursor);
+    })();
+    document.querySelectorAll('a, button, .pillar-card, .mission-stat, .role-card, .mosaic-cell').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('cursor-expanded'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-expanded'));
+    });
+
+    /* --- Nav scroll --- */
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    /* --- Particles --- */
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.bottom = Math.random() * 20 + '%';
+      p.style.setProperty('--d', (5 + Math.random() * 9) + 's');
+      p.style.setProperty('--delay', (Math.random() * 8) + 's');
+      p.style.width = (1 + Math.random() * 2) + 'px';
+      p.style.height = p.style.width;
+      container.appendChild(p);
+    }
+
+    /* --- Intersection observer for scroll reveals --- */
+    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .mosaic-cell');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => io.observe(el));
+
+    /* --- Parallax hero headline on mouse move --- */
+    const heroContent = document.querySelector('.hero-content');
+    const orb1 = document.querySelector('.orb-1');
+    const orb2 = document.querySelector('.orb-2');
+    document.addEventListener('mousemove', e => {
+      const xPct = (e.clientX / window.innerWidth - .5);
+      const yPct = (e.clientY / window.innerHeight - .5);
+      if (heroContent) {
+        heroContent.style.transform = `translate(${xPct * -8}px, ${yPct * -8}px)`;
+      }
+      if (orb1) orb1.style.transform = `translate(${xPct * 30}px, ${yPct * 20}px)`;
+      if (orb2) orb2.style.transform = `translate(${xPct * -20}px, ${yPct * -15}px)`;
+    });
+
+    /* --- Smooth anchor scroll --- */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+    /* ─── THREE.JS 3D BOX MODEL ENGINE ─── */
+    const wrapper = document.getElementById('canvas3dWrapper');
+    const width = wrapper.clientWidth;
+    const height = wrapper.clientHeight;
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(0, 0.0, 8.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    wrapper.appendChild(renderer.domElement);
+
+    // Assembly Master Group
+    const deviceGroup = new THREE.Group();
+    deviceGroup.position.y = 0.2;
+    scene.add(deviceGroup);
+
+    // Materials Configuration
+    const blackChassisMat = new THREE.MeshStandardMaterial({
+      color: 0x1a1921,
+      roughness: 0.4,
+      metalness: 0.2
+    });
+
+    const orangeFaceMat = new THREE.MeshStandardMaterial({
+      color: 0xff7618,
+      roughness: 0.5,
+      metalness: 0.1
+    });
+
+    const glowingOrangeMat = new THREE.MeshBasicMaterial({ color: 0xffaa44 });
+
+    // 1. Build Base Chassis Structure
+    const primaryBox = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.4, 3.6), blackChassisMat);
+    primaryBox.position.y = 0;
+    deviceGroup.add(primaryBox);
+
+    // Beveled corner columns
+    const cornerGeo = new THREE.BoxGeometry(0.4, 2.41, 0.4);
+    for (let x of [-1.8, 1.8]) {
+      for (let z of [-1.8, 1.8]) {
+        const cornerAccent = new THREE.Mesh(cornerGeo, blackChassisMat);
+        cornerAccent.position.set(x, 0, z);
+        cornerAccent.rotation.y = Math.PI / 4;
+        deviceGroup.add(cornerAccent);
+      }
+    }
+
+    // 2. Bright Orange Top Cap Profile Panel
+    const topCap = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.1, 3.5), orangeFaceMat);
+    topCap.position.set(0, 1.21, 0);
+    deviceGroup.add(topCap);
+
+    // 3. Air-Vent Grille Grooves on Top Surface
+    const ventMat = new THREE.MeshStandardMaterial({ color: 0x0c0b0f, roughness: 0.6 });
+    for (let i = 0; i < 5; i++) {
+      const ventLine = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 1.2), ventMat);
+      ventLine.position.set(-1.2 + (i * 0.16), 1.25, -0.6);
+      deviceGroup.add(ventLine);
+    }
+
+    // 4. Circular Smart Display Unit
+    const screenBezel = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.08, 32), orangeFaceMat);
+    screenBezel.position.set(0, 1.24, 0);
+    deviceGroup.add(screenBezel);
+
+    // Interactive Core UI Graphic Panel Texture
+    const canvasUI = document.createElement('canvas');
+    canvasUI.width = 256;
+    canvasUI.height = 256;
+    const ctxUI = canvasUI.getContext('2d');
+
+    ctxUI.fillStyle = '#0f0e15';
+    ctxUI.fillRect(0, 0, 256, 256);
+    ctxUI.beginPath();
+    ctxUI.arc(128, 128, 110, 0, Math.PI * 2);
+    ctxUI.fillStyle = '#171622';
+    ctxUI.fill();
+    ctxUI.lineWidth = 4;
+    ctxUI.strokeStyle = '#ff7618';
+    ctxUI.stroke();
+    ctxUI.beginPath();
+    ctxUI.arc(128, 128, 85, 0.8 * Math.PI, 2.2 * Math.PI);
+    ctxUI.lineWidth = 6;
+    ctxUI.strokeStyle = '#22c55e';
+    ctxUI.stroke();
+    ctxUI.fillStyle = '#ff7618';
+    ctxUI.font = 'bold 16px sans-serif';
+    ctxUI.textAlign = 'center';
+    ctxUI.fillText('STATUS: OPTIMAL', 128, 90);
+    ctxUI.fillStyle = '#ffffff';
+    ctxUI.font = '28px monospace';
+    ctxUI.fillText('0.12 g', 128, 135);
+    ctxUI.fillStyle = '#a0a0ab';
+    ctxUI.font = '12px sans-serif';
+    ctxUI.fillText('VIBRATION', 128, 165);
+
+    const uiTex = new THREE.CanvasTexture(canvasUI);
+    const uiScreenMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.68, 0.68, 0.02, 32),
+      new THREE.MeshBasicMaterial({ map: uiTex })
+    );
+    uiScreenMesh.position.set(0, 1.29, 0);
+    deviceGroup.add(uiScreenMesh);
+
+    // 5. Front Facing Glowing Brand Logo
+    const brandStem = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 0.05), glowingOrangeMat);
+    brandStem.position.set(-0.3, 0, 1.81);
+    const brandMid = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.05), glowingOrangeMat);
+    brandMid.position.set(-0.1, 0.22, 1.81);
+    const brandProng = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.4, 0.05), glowingOrangeMat);
+    brandProng.position.set(0.1, 0.1, 1.81);
+
+    const logoGroup = new THREE.Group();
+    logoGroup.add(brandStem, brandMid, brandProng);
+    deviceGroup.add(logoGroup);
+
+    // Studio Illumination
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    keyLight.position.set(5, 8, 5);
+    scene.add(keyLight);
+
+    const rimOrangeLight = new THREE.PointLight(0xff7618, 1.5, 10);
+    rimOrangeLight.position.set(-4, 2, -4);
+    scene.add(rimOrangeLight);
+
+    // Drag-to-rotate controls
+    let isDragging = false;
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+
+    wrapper.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      prevMouseX = e.clientX;
+      prevMouseY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => isDragging = false);
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevMouseX;
+      const deltaY = e.clientY - prevMouseY;
+      deviceGroup.rotation.y += deltaX * 0.01;
+      deviceGroup.rotation.x += deltaY * 0.01;
+      prevMouseX = e.clientX;
+      prevMouseY = e.clientY;
+    });
+
+    // Initial rotation angle
+    deviceGroup.rotation.x = 0.22;
+    deviceGroup.rotation.y = -0.55;
+
+    // Render loop
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!isDragging) {
+        deviceGroup.rotation.y += 0.003;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      const w = wrapper.clientWidth;
+      const h = wrapper.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+  </script>
+</body>
+
+</html>

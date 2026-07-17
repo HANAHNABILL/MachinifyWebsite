@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign In - Predictive Failure System</title>
+    <link rel="stylesheet" href="css/login.css">
+    <script src="js/auth.js"></script>
+    <script src="js/users.js"></script>
+</head>
+
+<body>
+    <!-- Background Crossfade Layers -->
+    <div id="bg1" class="bg-layer active"></div>
+    <div id="bg2" class="bg-layer"></div>
+    <div class="bg-overlay"></div>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="card-container">
+        <div class="registration-form-container">
+            <form action="" method="post" name="login_form">
+                <h3>Sign In</h3>
+
+                <span>Email Address</span>
+                <input type="text" name="email" id="email" class="box" placeholder="Enter your email" required>
+                <div class="message" id="emailError"></div>
+
+                <span>Password</span>
+                <input type="password" name="password" id="password" class="box" placeholder="Enter your password"
+                    required>
+                <div class="message" id="passwordError"></div>
+
+                <div class="message" id="loginError"></div>
+
+                <input type="submit" id="loginBtn" value="Sign In" name="submit" class="btn">
+                <p>Don't have an account? <a href="signup.html">Register here</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mouse tracking
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        // Background image rotation with smooth crossfade
+        const images = [
+            './images/main-home-single-img-01-800x341.jpg',
+            './images/main-home-image-04-800x384.jpg',
+            './images/Home-3-banner-02-800x420.jpg'
+        ];
+        let currentIndex = 0;
+        const bg1 = document.getElementById('bg1');
+        const bg2 = document.getElementById('bg2');
+        let activeBg = bg1;
+        let nextBg = bg2;
+
+        bg1.style.backgroundImage = `url('${images[0]}')`;
+
+        function changeBackgroundImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            nextBg.style.backgroundImage = `url('${images[currentIndex]}')`;
+            nextBg.classList.add('active');
+            activeBg.classList.remove('active');
+
+            // Swap references
+            const temp = activeBg;
+            activeBg = nextBg;
+            nextBg = temp;
+        }
+        setInterval(changeBackgroundImage, 5000);
+
+        // Particle canvas with predictive connection lines (Constellation effect)
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 2;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.opacity = Math.random() * 0.4 + 0.6;
+                this.color = `rgba(255, 118, 24, ${this.opacity})`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Mouse interaction: soft attraction
+                if (mouse.x && mouse.y) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 120) {
+                        this.x += dx * 0.02;
+                        this.y += dy * 0.02;
+                    }
+                }
+
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 18;
+                ctx.shadowColor = '#ff7618';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            const count = Math.min(Math.floor(window.innerWidth * window.innerHeight / 15000), 100);
+            for (let i = 0; i < count; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a + 1; b < particlesArray.length; b++) {
+                    let dx = particlesArray[a].x - particlesArray[b].x;
+                    let dy = particlesArray[a].y - particlesArray[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 130) {
+                        let opacity = (1 - (distance / 130)) * 0.5;
+                        ctx.strokeStyle = `rgba(255, 140, 40, ${opacity})`;
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        initParticles();
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particlesArray.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            connectParticles();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        // Interactive 3D Card Tilt
+        const card = document.querySelector('.registration-form-container');
+        document.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+
+            // Calculate rotation angles based on cursor distance from center of the card
+            const angleX = (cardCenterY - e.clientY) / 25;
+            const angleY = (e.clientX - cardCenterX) / 25;
+
+            card.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        });
+
+        // Button sparkle clicks
+        function createButtonSparks(button) {
+            const rect = button.getBoundingClientRect();
+            for (let i = 0; i < 35; i++) {
+                const star = document.createElement('div');
+                star.classList.add('button-particle');
+                const dx = (Math.random() - 0.5) * 280 + 'px';
+                const dy = (Math.random() - 0.5) * 280 + 'px';
+                star.style.setProperty('--dx', dx);
+                star.style.setProperty('--dy', dy);
+                star.style.left = (rect.left + rect.width / 2 - 16) + 'px';
+                star.style.top = (rect.top + rect.height / 2 - 16) + 'px';
+                star.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="#ff7618" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L14.09 8.26H20.82L15.36 12.14L17.45 18.4L12 14.52L6.55 18.4L8.64 12.14L3.18 8.26H9.91L12 2Z"/></svg>`;
+                document.body.appendChild(star);
+
+                star.style.animation = 'flyOut 1.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards';
+                star.addEventListener('animationend', () => star.remove());
+            }
+        }
+
+        // Form Submission handling
+        const loginForm = document.querySelector('form[name="login_form"]');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const loginBtn = document.getElementById('loginBtn');
+            createButtonSparks(loginBtn);
+
+            // Client-side validation
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            let hasError = false;
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email) {
+                document.getElementById('emailError').textContent = 'Email is required';
+                hasError = true;
+            } else if (!emailRegex.test(email)) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email';
+                hasError = true;
+            } else {
+                document.getElementById('emailError').textContent = '';
+            }
+
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Password is required';
+                hasError = true;
+            } else if (password.length < 6) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+                hasError = true;
+            } else {
+                document.getElementById('passwordError').textContent = '';
+            }
+
+            if (hasError) {
+                // Shake card on error
+                card.classList.remove('shake');
+                void card.offsetWidth; // trigger reflow
+                card.classList.add('shake');
+                return;
+            }
+
+            // Disable button during submission
+            loginBtn.disabled = true;
+            loginBtn.value = 'Signing In...';
+            document.getElementById('loginError').textContent = '';
+
+            // Use AuthService for login
+            const result = await AuthService.login(email, password);
+
+            if (result.success) {
+                UserService.createSession();
+                document.getElementById('loginError').style.color = '#4caf50';
+                document.getElementById('loginError').textContent = 'Login successful! Redirecting...';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                document.getElementById('loginError').textContent = result.message || 'Login failed. Please check credentials.';
+                loginBtn.disabled = false;
+                loginBtn.value = 'Sign In';
+
+                // Shake card on error
+                card.classList.remove('shake');
+                void card.offsetWidth;
+                card.classList.add('shake');
+            }
+        });
+    </script>
+</body>
+
+</html>

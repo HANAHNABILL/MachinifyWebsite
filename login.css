@@ -1,0 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0d0e12;
+    position: relative;
+}
+
+/* Background Crossfade Layers */
+.bg-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+    transition: opacity 1.5s ease-in-out, transform 8s ease-out;
+    opacity: 0;
+    transform: scale(1.05);
+}
+
+.bg-layer.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Vignette overlay to darken edges and focus center */
+.bg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.2) 0%, rgba(13, 14, 18, 0.85) 100%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Card Container Perspective */
+.card-container {
+    perspective: 1000px;
+    width: 420px;
+    position: relative;
+    z-index: 10;
+    padding: 20px;
+}
+
+/* Glassmorphism Container styling */
+.registration-form-container {
+    background: rgba(20, 24, 35, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 40px 35px;
+    border-radius: 24px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease, box-shadow 0.3s ease;
+    will-change: transform;
+}
+
+.registration-form-container:hover {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 
+                0 0 20px rgba(255, 118, 24, 0.15);
+}
+
+/* Input Fields styling */
+span, label {
+    display: block;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 25px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 30%, #ff7618 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.box {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.box::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.box:focus {
+    border-color: #ff7618;
+    background-color: rgba(255, 255, 255, 0.09);
+    box-shadow: 0 0 15px rgba(255, 118, 24, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+select.box {
+    cursor: pointer;
+}
+
+select.box option {
+    background-color: #141823;
+    color: #ffffff;
+}
+
+/* Premium Buttons */
+.btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #ff7618 0%, #ff9040 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 5px 15px rgba(255, 118, 24, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 118, 24, 0.45);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    background: linear-gradient(135deg, #555 0%, #777 100%);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Form switch paragraphs & links */
+p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 20px;
+}
+
+a {
+    color: #ff9040;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #ff7618;
+    text-decoration: underline;
+}
+
+.message {
+    color: #ff5e5e;
+    font-weight: 500;
+    font-size: 13px;
+    margin-top: -12px;
+    margin-bottom: 12px;
+    text-align: left;
+    min-height: 18px;
+}
+
+.success {
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Error shaker animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+.shake {
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Spark particle effects */
+.button-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .card-container {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .registration-form-container {
+        padding: 30px 20px;
+    }
+    
+    h3 {
+        font-size: 26px;
+    }
+}

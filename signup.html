@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Account - Predictive Failure System</title>
+    <link rel="stylesheet" href="css/login.css">
+    <style>
+        /* Adjust padding for longer registration form */
+        .registration-form-container {
+            padding: 30px 35px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Custom scrollbar for glass card */
+        .registration-form-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .registration-form-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .registration-form-container::-webkit-scrollbar-thumb {
+            background: rgba(245, 76, 110, 0.3);
+            border-radius: 10px;
+        }
+        .registration-form-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 76, 110, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Crossfade Layers -->
+    <div id="bg1" class="bg-layer active"></div>
+    <div id="bg2" class="bg-layer"></div>
+    <div class="bg-overlay"></div>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="card-container">
+        <div class="registration-form-container">
+            <form id="signupForm">
+                <h3>Create Account</h3>
+
+                <span>Full Name</span>
+                <input id="fullname" name="fullname" type="text" class="box" placeholder="Enter your full name" required />
+
+                <span>Username</span>
+                <input id="username" name="username" type="text" class="box" placeholder="Enter your username" required />
+                <div id="usernameError" class="message"></div>
+
+                <span>Email Address</span>
+                <input id="email" name="email" type="email" class="box" placeholder="Enter your email" required />
+                <div id="emailError" class="message"></div>
+
+                <span>Age</span>
+                <input id="age" name="age" type="number" class="box" placeholder="Enter your age" required />
+                <div id="ageError" class="message"></div>
+
+                <span>Phone Number</span>
+                <input id="phonenumber" name="phonenumber" type="text" class="box" placeholder="Enter phone number" required />
+
+                <span>Password</span>
+                <input id="password" name="password" type="password" class="box" placeholder="Min 6 characters" required />
+                <div id="passwordError" class="message"></div>
+
+                <span>Select Role</span>
+                <select id="role" name="role" class="box">
+                    <option value="engineer" selected>Engineer</option>
+                    <option value="technical">Technical</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <div id="submitMessage" class="message"></div>
+                <button type="submit" id="signupBtn" class="btn">Create Account</button>
+
+                <p>Already have an account? <a href="login.html">Login here</a></p>
+            </form>
+            
+            <div id="successBox" style="display:none;margin-top:10px;">
+                <p class="success">Registration successful!</p>
+                <p style="color: #fff; margin-bottom: 20px;">Redirecting to login page...</p>
+                <a href="login.html"><button class="btn">Go to Login</button></a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+<script src="js/particles.js"></script>
+    <script>
+        // Mouse tracking
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        // Background image rotation with smooth crossfade
+        const images = [
+            './images/main-home-single-img-01-800x341.jpg',
+            './images/main-home-image-04-800x384.jpg',
+            './images/Home-3-banner-02-800x420.jpg'
+        ];
+        let currentIndex = 0;
+        const bg1 = document.getElementById('bg1');
+        const bg2 = document.getElementById('bg2');
+        let activeBg = bg1;
+        let nextBg = bg2;
+
+        bg1.style.backgroundImage = `url('${images[0]}')`;
+
+        function changeBackgroundImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            nextBg.style.backgroundImage = `url('${images[currentIndex]}')`;
+            nextBg.classList.add('active');
+            activeBg.classList.remove('active');
+            
+            const temp = activeBg;
+            activeBg = nextBg;
+            nextBg = temp;
+        }
+        setInterval(changeBackgroundImage, 5000);
+
+        // Particle Canvas initialization using shared module
+initParticleCanvas('particleCanvas');
+        // Particle system handled by shared module (initParticleCanvas already called)
+
+        // 3D Tilt Card
+        const card = document.querySelector('.registration-form-container');
+        document.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+            const angleX = (cardCenterY - e.clientY) / 30;
+            const angleY = (e.clientX - cardCenterX) / 30;
+            card.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        });
+
+        // Button spark animation
+        function createButtonSparks(button) {
+            const rect = button.getBoundingClientRect();
+            for (let i = 0; i < 35; i++) {
+                const star = document.createElement('div');
+                star.classList.add('button-particle');
+                const dx = (Math.random() - 0.5) * 240 + 'px';
+                const dy = (Math.random() - 0.5) * 240 + 'px';
+                star.style.setProperty('--dx', dx);
+                star.style.setProperty('--dy', dy);
+                star.style.left = (rect.left + rect.width / 2 - 9) + 'px';
+                star.style.top = (rect.top + rect.height / 2 - 9) + 'px';
+                star.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff7618" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L14.09 8.26H20.82L15.36 12.14L17.45 18.4L12 14.52L6.55 18.4L8.64 12.14L3.18 8.26H9.91L12 2Z"/></svg>`;
+                document.body.appendChild(star);
+                
+                star.style.animation = 'flyOut 1.1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards';
+                star.addEventListener('animationend', () => star.remove());
+            }
+        }
+
+        const signupForm = document.getElementById('signupForm');
+        const usernameError = document.getElementById('usernameError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const ageError = document.getElementById('ageError');
+        const submitMessage = document.getElementById('submitMessage');
+        const successBox = document.getElementById('successBox');
+
+        function clearErrors() {
+            usernameError.textContent = '';
+            emailError.textContent = '';
+            passwordError.textContent = '';
+            ageError.textContent = '';
+            submitMessage.textContent = '';
+        }
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+
+            const signupBtn = document.getElementById('signupBtn');
+            createButtonSparks(signupBtn);
+
+            const fullName = document.getElementById('fullname').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const age = parseInt(document.getElementById('age').value, 10);
+            const phonenumber = document.getElementById('phonenumber').value.trim();
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            let valid = true;
+            if (!username) { usernameError.textContent = 'Username is required'; valid = false; }
+            if (!email) { emailError.textContent = 'Email is required'; valid = false; }
+            else {
+                const emailRegex = /.+@.+\..+/;
+                if (!emailRegex.test(email)) { emailError.textContent = 'Invalid email format'; valid = false; }
+            }
+            if (!password) { passwordError.textContent = 'Password is required'; valid = false; }
+            else if (password.length < 6) { passwordError.textContent = 'Password must be at least 6 characters'; valid = false; }
+            if (!age && age !== 0) { ageError.textContent = 'Age is required'; valid = false; }
+            else if (age <= 18) { ageError.textContent = 'You must be older than 18'; valid = false; }
+
+            if (!valid) {
+                card.classList.remove('shake');
+                void card.offsetWidth;
+                card.classList.add('shake');
+                return;
+            }
+
+            signupBtn.disabled = true;
+            submitMessage.textContent = 'Creating account...';
+            
+            try {
+                const result = await AuthService.register(fullName || username, email, password, role);
+                if (result.success) {
+                    submitMessage.textContent = '';
+                    signupForm.style.display = 'none';
+                    successBox.style.display = 'block';
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                } else {
+                    submitMessage.textContent = result.message || 'Registration failed';
+                    signupBtn.disabled = false;
+                    card.classList.remove('shake');
+                    void card.offsetWidth;
+                    card.classList.add('shake');
+                }
+            } catch (err) {
+                console.error('Registration error:', err);
+                submitMessage.textContent = 'Network error. Please try again.';
+                signupBtn.disabled = false;
+                card.classList.remove('shake');
+                void card.offsetWidth;
+                card.classList.add('shake');
+            }
+        });
+    </script>
+</body>
+</html>
